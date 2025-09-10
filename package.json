@@ -1,0 +1,31 @@
+{
+  "name": "praman-supply-chain",
+  "version": "1.0.0",
+  "description": "PRAMAN Supply Chain Blockchain Implementation",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "node": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:hardhat": "hardhat run scripts/deploy.js --network hardhat",
+    "frontend:dev": "cd frontend && npm run dev",
+    "frontend:build": "cd frontend && npm run build",
+    "start:local": "npm run node & npm run deploy:local & npm run frontend:dev"
+  },
+  "keywords": [
+    "blockchain",
+    "supply-chain",
+    "ethereum",
+    "hardhat"
+  ],
+  "author": "PRAMAN Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.26.3"
+  },
+  "dependencies": {
+    "web3": "^4.16.0"
+  }
+}
