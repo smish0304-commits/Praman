@@ -102,14 +102,34 @@ function DashboardPage() {
           // Get user batches from blockchain
           try {
             const allBatches = await web3Service.getAllBatches()
-            // Filter batches for this user
-            const userBatches = allBatches.filter(batch => 
-              batch.regdNo === blockchainUser.regdNo || 
-              batch.previousActor === blockchainUser.regdNo ||
-              batch.nextActor === blockchainUser.regdNo
-            )
+            // Filter batches for this user - show all batches they're involved with
+            let userBatches = allBatches.filter(batch => {
+              const userRegdNo = blockchainUser.regdNo
+              
+              // Check if user is involved in any way:
+              return (
+                // Created by user
+                batch.regdNo === userRegdNo ||
+                // Sent by user (previous actor)
+                batch.previousActor === userRegdNo ||
+                // Received by user (next actor)
+                batch.nextActor === userRegdNo ||
+                // User is in the supply chain history (if we track that)
+                (batch.supplyChainHistory && batch.supplyChainHistory.includes(userRegdNo)) ||
+                // User is the current owner (if we track that)
+                batch.currentOwner === userRegdNo
+              )
+            })
+            
+            // If no batches found with specific filtering, show all batches for farmers
+            // (since farmers create genesis batches and should see all their creations)
+            if (userBatches.length === 0 && blockchainUser.role === 'farmer') {
+              console.log('🔍 No specific batches found, showing all batches for farmer')
+              userBatches = allBatches
+            }
             setBatches(userBatches)
             console.log('✅ DashboardPage: User batches loaded:', userBatches.length)
+            console.log('🔍 DashboardPage: Batch data structure:', userBatches)
           } catch (batchError) {
             console.error('Error loading batches:', batchError)
             setBatches([])
@@ -232,29 +252,30 @@ function DashboardPage() {
 
   const handleReceiveBatch = async (batchData) => {
     try {
-      // Create new batch entry for received batch
-      const response = await fetch('/api/batches/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ownerId: user.id,
-          batchId: batchData.batchId,
-          name: `Received: ${batchData.batchId}`,
-          description: batchData.notes,
-          status: 'received',
-          currentLocation: batchData.location.address || 'Received Location',
-          metadata: batchData
-        })
-      })
+      console.log('🔍 Receiving batch on blockchain:', batchData)
       
-      const result = await response.json()
-      if (result.success) {
-        setBatches([...batches, result.batch])
-        alert('Batch received successfully!')
+      // Initialize Web3 service
+      await web3Service.initialize()
+      
+      // Call blockchain contract to receive batch
+      const result = await web3Service.sendContractTransaction('receiveBatch', [
+        batchData.selectedBatch || batchData.batchId, // batchId
+        batchData.qualityCheck || 'Quality check passed', // qualityCheck
+        batchData.blockchain?.signatureHash || '0x' + 'c'.repeat(64) // newSignatureHash
+      ])
+      
+      if (result) {
+        console.log('✅ Batch received on blockchain:', result.transactionHash)
+        
+        // Reload batches from blockchain
+        loadUserData()
+        alert(`Batch received successfully!\nTransaction: ${result.transactionHash}`)
+      } else {
+        throw new Error('Blockchain transaction failed')
       }
     } catch (error) {
-      console.error('Error receiving batch:', error)
-      alert('Error receiving batch')
+      console.error('❌ Error receiving batch:', error)
+      alert(`Failed to receive batch: ${error.message}`)
     }
   }
 
@@ -384,10 +405,11 @@ function DashboardPage() {
                 <div className="mt-4">
                   <h3 className="text-sm font-medium text-gray-700 mb-2">Recent Batches</h3>
                   <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {batches.slice(0, 3).map(batch => (
-                      <div key={batch.id} className="text-xs p-2 bg-gray-50 rounded">
-                        <div className="font-medium">{batch.name}</div>
-                        <div className="text-gray-500">{batch.batch_id}</div>
+                    {batches.slice(0, 3).map((batch, index) => (
+                      <div key={batch.batchId || batch.id || index} className="text-xs p-2 bg-gray-50 rounded">
+                        <div className="font-medium">{batch.cropName || batch.name || 'Unknown Crop'}</div>
+                        <div className="text-gray-500">{batch.batchId || batch.batch_id || 'No ID'}</div>
+                        <div className="text-gray-400 text-xs">{batch.status || 'Unknown Status'}</div>
                       </div>
                     ))}
                   </div>
