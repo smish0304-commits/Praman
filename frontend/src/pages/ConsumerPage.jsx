@@ -1,38 +1,44 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useRef, useState } from "react"
 
 const ConsumerPage = () => {
   const videoRef = useRef(null)
   const [batchId, setBatchId] = useState("")
+  const [cameraStarted, setCameraStarted] = useState(false)
 
-  useEffect(() => {
-    // Open the camera
-    const openCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true })
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-        }
-      } catch (err) {
-        console.error("Error accessing camera:", err)
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
       }
+      setCameraStarted(true)
+    } catch (err) {
+      console.error("Error accessing camera:", err)
+      alert("Cannot access camera. Please allow camera permissions.")
     }
-    openCamera()
-  }, [])
+  }
 
   return (
     <div className="flex flex-col items-center p-6">
-      {/* Title */}
       <h1 className="text-2xl font-bold text-gray-800 mb-4">
         SCAN QR ON PRODUCT
       </h1>
 
       {/* Camera Preview */}
-      <div className="w-72 h-72 bg-gray-200 rounded-lg overflow-hidden shadow-md mb-6">
+      <div className="w-72 h-72 bg-gray-200 rounded-lg overflow-hidden shadow-md mb-6 flex items-center justify-center">
+        {!cameraStarted && (
+          <button
+            onClick={startCamera}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          >
+            Start Camera
+          </button>
+        )}
         <video
           ref={videoRef}
           autoPlay
           playsInline
-          className="w-full h-full object-cover"
+          className={`w-full h-full object-cover ${!cameraStarted ? "hidden" : ""}`}
         />
       </div>
 
