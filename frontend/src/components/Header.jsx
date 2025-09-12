@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-
+import logo from "../assets/logo.png"
 function Header() {
   const [walletAddress, setWalletAddress] = useState('')
   const [isConnected, setIsConnected] = useState(false)
@@ -64,7 +64,7 @@ function Header() {
       {/* Logo (centered) */}
       <div className="absolute left-1/2 transform -translate-x-1/2 h-full flex items-center justify-center">
         <img
-          src="/src/assets/logo.png"
+          src={logo}
           alt="PRAMAN Logo"
           className="max-h-full w-auto object-contain transition-transform duration-300 hover:scale-105"
         />
