@@ -3,6 +3,7 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import MainContent from './components/MainContent'
 import ContributorPage from './pages/ContributorPage'
+import ConsumerPage from './pages/ConsumerPage'
 import DashboardPage from './pages/DashboardPage'
 import RegistrationPage from './pages/RegistrationPage'
 import DataManager from './components/DataManager'
@@ -20,6 +21,7 @@ function App() {
             <Route path="/contributor" element={<ContributorPage />} />
             <Route path="/register/:roleId" element={<RegistrationPage />} />
             <Route path="/dashboard/:roleId" element={<DashboardPage />} />
+            <Route path="/consumer" element={<ConsumerPage />} />
           </Routes>
           <Footer />
           <DataManager />
