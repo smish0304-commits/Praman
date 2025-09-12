@@ -10,7 +10,7 @@ function RoleSelector() {
     <div className="bg-gradient-to-b from-[#FFFDF8] to-[#FFF8E7] rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 text-center border border-transparent hover:border-blue-400">
       <div className="mb-3 flex justify-center">
         <img
-          src="/contributor.png" // <-- replace with your own image path
+          src="/images/contributor.png" // <-- replace with your own image path
           alt="Contributor"
           className="h-14 w-14 object-contain group-hover:scale-110 transition-transform duration-300"
         />
@@ -29,7 +29,7 @@ function RoleSelector() {
     <div className="bg-gradient-to-b from-[#FFFDF8] to-[#FFF8E7] rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-6 text-center border border-transparent hover:border-green-400">
       <div className="mb-3 flex justify-center">
         <img
-          src="/consumer.png" // <-- replace with your own image path
+          src="/images/consumer.png" // <-- replace with your own image path
           alt="Consumer"
           className="h-14 w-14 object-contain group-hover:scale-110 transition-transform duration-300"
         />

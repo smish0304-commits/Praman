@@ -64,7 +64,7 @@ function Header() {
       {/* Logo (centered) */}
       <div className="absolute left-1/2 transform -translate-x-1/2 h-full flex items-center justify-center">
         <img
-          src="/logo.png"
+          src="/images/logo.png"
           alt="PRAMAN Logo"
           className="max-h-full w-auto object-contain transition-transform duration-300 hover:scale-105"
         />
