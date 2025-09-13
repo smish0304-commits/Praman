@@ -1,9 +1,11 @@
 import React, { useRef, useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 const ConsumerPage = () => {
   const videoRef = useRef(null)
   const [batchId, setBatchId] = useState("")
   const [cameraStarted, setCameraStarted] = useState(false)
+  const navigate = useNavigate()
 
   const startCamera = async () => {
     try {
@@ -16,6 +18,30 @@ const ConsumerPage = () => {
       console.error("Error accessing camera:", err)
       alert("Cannot access camera. Please allow camera permissions.")
     }
+  }
+
+  // Allow letters + digits, force uppercase, format XXXX-XXXX-XX
+  const handleBatchIdChange = (e) => {
+    let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "") // allow only A-Z, 0-9
+    if (value.length > 10) value = value.slice(0, 10)
+
+    let formatted = value
+    if (value.length > 4 && value.length <= 8) {
+      formatted = value.slice(0, 4) + "-" + value.slice(4)
+    } else if (value.length > 8) {
+      formatted =
+        value.slice(0, 4) + "-" + value.slice(4, 8) + "-" + value.slice(8)
+    }
+
+    setBatchId(formatted)
+  }
+
+  const handleEnter = () => {
+    if (batchId.replace(/[^A-Z0-9]/g, "").length !== 10) {
+      alert("Batch ID must be 10 characters (A-Z, 0-9).")
+      return
+    }
+    navigate("/chain", { state: { batchId } })
   }
 
   return (
@@ -38,12 +64,14 @@ const ConsumerPage = () => {
           ref={videoRef}
           autoPlay
           playsInline
-          className={`w-full h-full object-cover ${!cameraStarted ? "hidden" : ""}`}
+          className={`w-full h-full object-cover ${
+            !cameraStarted ? "hidden" : ""
+          }`}
         />
       </div>
 
       {/* Batch ID Input */}
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md mb-4">
         <label
           htmlFor="batchId"
           className="block text-lg font-semibold text-gray-700 mb-2"
@@ -54,11 +82,20 @@ const ConsumerPage = () => {
           id="batchId"
           type="text"
           value={batchId}
-          onChange={(e) => setBatchId(e.target.value)}
-          placeholder="Enter batch ID here"
-          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          onChange={handleBatchIdChange}
+          placeholder="XXXX-XXXX-XX"
+          maxLength={12}
+          className="w-full border border-gray-300 rounded-lg px-4 py-2 uppercase focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
       </div>
+
+      {/* Enter Button */}
+      <button
+        onClick={handleEnter}
+        className="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700 transition"
+      >
+        Enter
+      </button>
     </div>
   )
 }

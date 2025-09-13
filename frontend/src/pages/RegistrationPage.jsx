@@ -34,7 +34,6 @@ function RegistrationPage() {
     retailer: 'RET'
   }
 
-  // Check for existing user and generate registration number
   useEffect(() => {
     const initializeRegistration = async () => {
       try {
