@@ -20,25 +20,48 @@ const ConsumerPage = () => {
     }
   }
 
-  // Allow letters + digits, force uppercase, format XXXX-XXXX-XX
-  const handleBatchIdChange = (e) => {
-    let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "") // allow only A-Z, 0-9
-    if (value.length > 10) value = value.slice(0, 10)
+  // Allow only letters + digits, force uppercase, format as XXXXXX-XXXXXXXXXXXXXX-XXX
+ // Allow only letters + digits, force uppercase, format as XXXXXX-XXXXXXXXXXXXXX-XXX
+const handleBatchIdChange = (e) => {
+  let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); // only A-Z, 0-9
+  if (value.length > 22) value = value.slice(0, 22); // cap at 22 chars
 
-    let formatted = value
-    if (value.length > 4 && value.length <= 8) {
-      formatted = value.slice(0, 4) + "-" + value.slice(4)
-    } else if (value.length > 8) {
+  let formatted = value;
+
+  if (value.length > 6 && value.length <= 22) {
+    if (value.length <= 22) {
       formatted =
-        value.slice(0, 4) + "-" + value.slice(4, 8) + "-" + value.slice(8)
+        value.slice(0, 6) + "-" + value.slice(6, Math.min(22, value.length));
     }
-
-    setBatchId(formatted)
   }
 
+  if (value.length > 22) {
+    formatted =
+      value.slice(0, 6) +
+      "-" +
+      value.slice(6, 22) +
+      "-" +
+      value.slice(22, 25); // last 3
+  }
+
+  // ✅ Proper format when exactly 22 chars entered
+  if (value.length === 22) {
+    formatted =
+      value.slice(0, 6) +
+      "-" +
+      value.slice(6, 19) +
+      "-" +
+      value.slice(19, 22); // ensures no trailing dash
+  }
+
+  setBatchId(formatted);
+};
+
+
   const handleEnter = () => {
-    if (batchId.replace(/[^A-Z0-9]/g, "").length !== 10) {
-      alert("Batch ID must be 10 characters (A-Z, 0-9).")
+    const cleanValue = batchId.replace(/[^A-Z0-9]/g, "")
+    if (cleanValue.length !== 22) {
+      alert("Batch ID must be exactly 22 characters (A-Z, 0-9).")
       return
     }
     navigate("/details", { state: { batchId } }) // Navigate to Details page
@@ -83,8 +106,8 @@ const ConsumerPage = () => {
           type="text"
           value={batchId}
           onChange={handleBatchIdChange}
-          placeholder="XXXX-XXXX-XX"
-          maxLength={12}
+          placeholder="XXXXXX-XXXXXXXXXXXXXX-XXX"
+          maxLength={24} // 22 chars + 2 dashes
           className="w-full border border-gray-300 rounded-lg px-4 py-2 uppercase focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
       </div>
