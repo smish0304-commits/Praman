@@ -41,7 +41,7 @@ const ConsumerPage = () => {
       alert("Batch ID must be 10 characters (A-Z, 0-9).")
       return
     }
-    navigate("/chain", { state: { batchId } })
+    navigate("/details", { state: { batchId } }) // Navigate to Details page
   }
 
   return (
@@ -92,9 +92,17 @@ const ConsumerPage = () => {
       {/* Enter Button */}
       <button
         onClick={handleEnter}
-        className="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700 transition"
+        className="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg shadow hover:bg-green-700 transition mb-4"
       >
         Enter
+      </button>
+
+      {/* Go Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="px-6 py-2 bg-gray-600 text-white font-semibold rounded-lg shadow hover:bg-gray-700 transition"
+      >
+        Go Back
       </button>
     </div>
   )
