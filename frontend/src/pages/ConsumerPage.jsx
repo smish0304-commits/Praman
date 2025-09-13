@@ -7,6 +7,7 @@ const ConsumerPage = () => {
   const [cameraStarted, setCameraStarted] = useState(false)
   const navigate = useNavigate()
 
+  // ✅ Start Camera
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true })
@@ -20,51 +21,33 @@ const ConsumerPage = () => {
     }
   }
 
-  // Allow only letters + digits, force uppercase, format as XXXXXX-XXXXXXXXXXXXXX-XXX
- // Allow only letters + digits, force uppercase, format as XXXXXX-XXXXXXXXXXXXXX-XXX
-const handleBatchIdChange = (e) => {
-  let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); // only A-Z, 0-9
-  if (value.length > 22) value = value.slice(0, 22); // cap at 22 chars
-
-  let formatted = value;
-
-  if (value.length > 6 && value.length <= 22) {
-    if (value.length <= 22) {
-      formatted =
-        value.slice(0, 6) + "-" + value.slice(6, Math.min(22, value.length));
-    }
-  }
-
-  if (value.length > 22) {
-    formatted =
-      value.slice(0, 6) +
-      "-" +
-      value.slice(6, 22) +
-      "-" +
-      value.slice(22, 25); // last 3
-  }
-
-  // ✅ Proper format when exactly 22 chars entered
-  if (value.length === 22) {
-    formatted =
-      value.slice(0, 6) +
-      "-" +
-      value.slice(6, 18) +
-      "-" +
-      value.slice(18, 25); // ensures no trailing dash
-  }
-
-  setBatchId(formatted);
-};
-
-
+  // ✅ Always redirect on Enter
   const handleEnter = () => {
-    const cleanValue = batchId.replace(/[^A-Z0-9]/g, "")
-    if (cleanValue.length !== 22) {
-      alert("Batch ID must be exactly 22 characters (A-Z, 0-9).")
-      return
+    navigate("/details", { state: { batchId } })
+  }
+
+  // ✅ Batch ID formatting (XXXXXX-XXXXXXXXXXXXXX-XXX)
+  const handleBatchIdChange = (e) => {
+    let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "")
+    if (value.length > 22) value = value.slice(0, 22)
+
+    let formatted = value
+
+    if (value.length > 6 && value.length <= 22) {
+      formatted =
+        value.slice(0, 6) + "-" + value.slice(6, Math.min(22, value.length))
     }
-    navigate("/details", { state: { batchId } }) // Navigate to Details page
+
+    if (value.length === 22) {
+      formatted =
+        value.slice(0, 6) +
+        "-" +
+        value.slice(6, 18) +
+        "-" +
+        value.slice(18, 22)
+    }
+
+    setBatchId(formatted)
   }
 
   return (
@@ -107,7 +90,7 @@ const handleBatchIdChange = (e) => {
           value={batchId}
           onChange={handleBatchIdChange}
           placeholder="XXXXXX-XXXXXXXXXXXXXX-XXX"
-          maxLength={24} // 22 chars + 2 dashes
+          maxLength={24}
           className="w-full border border-gray-300 rounded-lg px-4 py-2 uppercase focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
       </div>
