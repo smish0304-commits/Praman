@@ -1,69 +1,62 @@
-import React, { useState, useRef } from "react"
+import React, { useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 const ConsumerPage = () => {
-  const [batchId, setBatchId] = useState("")
-  const [cameraOn, setCameraOn] = useState(false)
   const videoRef = useRef(null)
+  const [batchId, setBatchId] = useState("")
+  const [cameraStarted, setCameraStarted] = useState(false)
   const navigate = useNavigate()
 
-  // ✅ Start Camera
   const startCamera = async () => {
     try {
-      let stream = null
-
-      // Try back camera first
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { exact: "environment" } },
-          audio: false,
-        })
-      } catch (err) {
-        console.warn("Back camera not available, using default:", err)
-        // Fallback: try without "exact"
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-          audio: false,
-        })
-      }
-
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true })
       if (videoRef.current) {
         videoRef.current.srcObject = stream
-        videoRef.current.play()
       }
-
-      setCameraOn(true)
-
-      // ⏳ After 10 seconds → go to Details.js
-      setTimeout(() => {
-        navigate("/details", { state: { batchId: "CAMERA-SCANNED" } })
-      }, 10000)
+      setCameraStarted(true)
     } catch (err) {
-      console.error("Camera error:", err)
-      alert("Could not access camera. Please check permissions & HTTPS.")
+      console.error("Error accessing camera:", err)
+      alert("Cannot access camera. Please allow camera permissions.")
     }
   }
 
-  // ✅ Handle Batch ID formatting
-  const handleBatchIdChange = (e) => {
-    let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "")
-    if (value.length > 22) value = value.slice(0, 22)
+  // Allow only letters + digits, force uppercase, format as XXXXXX-XXXXXXXXXXXXXX-XXX
+ // Allow only letters + digits, force uppercase, format as XXXXXX-XXXXXXXXXXXXXX-XXX
+const handleBatchIdChange = (e) => {
+  let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); // only A-Z, 0-9
+  if (value.length > 22) value = value.slice(0, 22); // cap at 22 chars
 
-    let formatted = value
-    if (value.length > 6 && value.length <= 22) {
-      formatted = value.slice(0, 6) + "-" + value.slice(6)
-    }
-    if (value.length === 22) {
+  let formatted = value;
+
+  if (value.length > 6 && value.length <= 22) {
+    if (value.length <= 22) {
       formatted =
-        value.slice(0, 6) +
-        "-" +
-        value.slice(6, 19) +
-        "-" +
-        value.slice(19, 22)
+        value.slice(0, 6) + "-" + value.slice(6, Math.min(22, value.length));
     }
-
-    setBatchId(formatted)
   }
+
+  if (value.length > 22) {
+    formatted =
+      value.slice(0, 6) +
+      "-" +
+      value.slice(6, 22) +
+      "-" +
+      value.slice(22, 25); // last 3
+  }
+
+  // ✅ Proper format when exactly 22 chars entered
+  if (value.length === 22) {
+    formatted =
+      value.slice(0, 6) +
+      "-" +
+      value.slice(6, 19) +
+      "-" +
+      value.slice(18, 22); // ensures no trailing dash
+  }
+
+  setBatchId(formatted);
+};
+
 
   const handleEnter = () => {
     const cleanValue = batchId.replace(/[^A-Z0-9]/g, "")
@@ -71,7 +64,7 @@ const ConsumerPage = () => {
       alert("Batch ID must be exactly 22 characters (A-Z, 0-9).")
       return
     }
-    navigate("/details", { state: { batchId } })
+    navigate("/details", { state: { batchId } }) // Navigate to Details page
   }
 
   return (
@@ -81,15 +74,8 @@ const ConsumerPage = () => {
       </h1>
 
       {/* Camera Preview */}
-      <div className="w-72 h-72 bg-black rounded-lg overflow-hidden shadow-md mb-6 flex items-center justify-center">
-        {cameraOn ? (
-          <video
-            ref={videoRef}
-            className="w-full h-full object-cover"
-            autoPlay
-            playsInline
-          />
-        ) : (
+      <div className="w-72 h-72 bg-gray-200 rounded-lg overflow-hidden shadow-md mb-6 flex items-center justify-center">
+        {!cameraStarted && (
           <button
             onClick={startCamera}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg"
@@ -97,6 +83,14 @@ const ConsumerPage = () => {
             Start Camera
           </button>
         )}
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          className={`w-full h-full object-cover ${
+            !cameraStarted ? "hidden" : ""
+          }`}
+        />
       </div>
 
       {/* Batch ID Input */}
@@ -113,7 +107,7 @@ const ConsumerPage = () => {
           value={batchId}
           onChange={handleBatchIdChange}
           placeholder="XXXXXX-XXXXXXXXXXXXXX-XXX"
-          maxLength={24}
+          maxLength={24} // 22 chars + 2 dashes
           className="w-full border border-gray-300 rounded-lg px-4 py-2 uppercase focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
       </div>
