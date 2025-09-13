@@ -1,21 +1,52 @@
-import React, { useState } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 
 const ConsumerPage = () => {
   const [batchId, setBatchId] = useState("")
+  const [cameraOn, setCameraOn] = useState(false)
+  const videoRef = useRef(null)
   const navigate = useNavigate()
 
-  // ✅ Batch ID input handler
+  // Start back camera
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { exact: "environment" } }, // ✅ Force back camera
+        audio: false,
+      })
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+        videoRef.current.play()
+      }
+      setCameraOn(true)
+
+      // ⏳ Auto-redirect after 10 sec
+      setTimeout(() => {
+        navigate("/details", { state: { batchId: "CAMERA-SCANNED" } })
+      }, 10000)
+    } catch (err) {
+      console.error("Error accessing camera:", err)
+      alert("Could not access back camera. Please allow permissions.")
+    }
+  }
+
+  // Stop camera when leaving
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach((track) => track.stop())
+      videoRef.current.srcObject = null
+    }
+    setCameraOn(false)
+  }
+
   const handleBatchIdChange = (e) => {
     let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "")
     if (value.length > 22) value = value.slice(0, 22)
 
     let formatted = value
-
     if (value.length > 6 && value.length <= 22) {
       formatted = value.slice(0, 6) + "-" + value.slice(6, Math.min(22, value.length))
     }
-
     if (value.length === 22) {
       formatted =
         value.slice(0, 6) + "-" + value.slice(6, 19) + "-" + value.slice(19, 22)
@@ -33,31 +64,28 @@ const ConsumerPage = () => {
     navigate("/details", { state: { batchId } })
   }
 
+  useEffect(() => {
+    return () => stopCamera() // cleanup on unmount
+  }, [])
+
   return (
     <div className="flex flex-col items-center p-6">
       <h1 className="text-2xl font-bold text-gray-800 mb-4">
         SCAN QR ON PRODUCT
       </h1>
 
-      {/* QR Box with Camera Input */}
+      {/* Camera / QR Box */}
       <div className="w-72 h-72 bg-gray-200 rounded-lg overflow-hidden shadow-md mb-6 flex items-center justify-center">
-        <label className="px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer">
-          Start Camera
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment" // ✅ Opens BACK CAMERA on mobile
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files[0]
-              if (file) {
-                console.log("📷 Captured:", file)
-                // here you can process the QR image or navigate
-                navigate("/details", { state: { batchId: "QR-SCANNED" } })
-              }
-            }}
-          />
-        </label>
+        {cameraOn ? (
+          <video ref={videoRef} className="w-full h-full object-cover" />
+        ) : (
+          <button
+            onClick={startCamera}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          >
+            Start Camera
+          </button>
+        )}
       </div>
 
       {/* Batch ID Input */}
@@ -89,7 +117,10 @@ const ConsumerPage = () => {
 
       {/* Go Back Button */}
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => {
+          stopCamera()
+          navigate(-1)
+        }}
         className="px-6 py-2 bg-gray-600 text-white font-semibold rounded-lg shadow hover:bg-gray-700 transition"
       >
         Go Back
