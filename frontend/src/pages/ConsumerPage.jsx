@@ -7,7 +7,7 @@ const ConsumerPage = () => {
   const [cameraStarted, setCameraStarted] = useState(false)
   const navigate = useNavigate()
 
-  // ✅ Start Camera
+  // ✅ Start Camera and auto-redirect after 7 seconds
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true })
@@ -15,6 +15,11 @@ const ConsumerPage = () => {
         videoRef.current.srcObject = stream
       }
       setCameraStarted(true)
+
+      // ⏳ Auto navigate after 7 seconds
+      setTimeout(() => {
+        navigate("/details", { state: { batchId } })
+      }, 7000)
     } catch (err) {
       console.error("Error accessing camera:", err)
       alert("Cannot access camera. Please allow camera permissions.")
