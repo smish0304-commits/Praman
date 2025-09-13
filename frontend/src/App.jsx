@@ -10,7 +10,7 @@ import DetailsPage from './pages/Details' // ✅ Import for the new Details page
 import DataManager from './components/DataManager'
 import { ToastProvider } from './contexts/ToastContext'
 import './utils/mockApi' // Local storage mock DB
-import Puru from './components/chatbot'
+import Puru from './components/Puru'
 
 function App() {
   return (
