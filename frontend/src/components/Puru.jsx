@@ -67,7 +67,7 @@ export default function Puru() {
   return (
     <>
       {/* Floating button wrapper */}
-      <div className="fixed right-5 bottom-20 z-50">
+      <div className="fixed right-5 bottom-30 z-50">
         <div className="relative w-16 h-16">
           {/* main button */}
           <button
