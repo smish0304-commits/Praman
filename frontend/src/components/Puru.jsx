@@ -26,7 +26,7 @@ const DEFAULT_ANSWER = "Sorry, I don't have answers for this";
 export default function Puru() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { from: "bot", text: "Hello! I’m PURU. Your Pramanu BOT" }
+    { from: "bot", text: "Hello! I’m PURU. Your Praman saathi" }
   ]);
   const [userInput, setUserInput] = useState("");
   const [typing, setTyping] = useState(false);
