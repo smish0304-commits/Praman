@@ -49,9 +49,9 @@ const handleBatchIdChange = (e) => {
     formatted =
       value.slice(0, 6) +
       "-" +
-      value.slice(6, 19) +
+      value.slice(6, 18) +
       "-" +
-      value.slice(18, 22); // ensures no trailing dash
+      value.slice(18, 25); // ensures no trailing dash
   }
 
   setBatchId(formatted);
