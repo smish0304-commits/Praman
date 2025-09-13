@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import puru from "../assets/puru.png"; // make sure this exists
 
 const QA_PAIRS = [
-  { q: "What is Pramanu?", a: "Pramanu is a system that tracks Ayurvedic herbs from the farm to the final product using blockchain." },
+  { q: "What is Praman?", a: "Praman is a system that tracks Ayurvedic herbs from the farm to the final product using blockchain." },
   { q: "How does it help farmers?", a: "It records where and when they collect herbs and helps them get fair prices for good practices." },
   { q: "Why use blockchain?", a: "Because records on blockchain cannot be changed or faked." },
   { q: "How can customers use it?", a: "They scan a QR code on the pack to see the full journey of the herb." },
