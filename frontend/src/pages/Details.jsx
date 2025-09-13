@@ -116,7 +116,7 @@ const Details = () => {
           {/* Page Title */}
           <div className="text-center mb-10">
             <h1 className="text-3xl font-bold text-gray-800 mb-1">Product Journey Timeline</h1>
-            <p className="text-blue-700 text-2xl font-bold">Batch: {selectedFarmer ? selectedFarmer.batchId : "Not Selected"}</p>
+            <p className="text-blue-700 text-2xl font-bold">Batch: FRM001-1757732480816-GEN</p>
             <p className="text-gray-600 text-lg font-bold">Tracking for Aswagandha</p>
           </div>
 
